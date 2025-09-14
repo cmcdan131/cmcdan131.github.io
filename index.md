@@ -7,9 +7,9 @@ This page is a work in progress, which I will be building out as part of my cour
 Here are a few things you may see here later:
 
 *Links to my web mapping projects*
-
+<br>
 *Information about my skills and experience.*
-
+<br>
 *Contact information*
-
+<br>
 **Stay tuned for updates!**
