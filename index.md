@@ -13,3 +13,7 @@ This page is a work in progress, which I will be building out as part of my cour
 *Contact information*
 <br><br>
 **Stay tuned for updates!**
+
+
+<iframe src="{{ site.baseurl }}/assets/maps/EX1_1_college_popups_marker.html" width="800"
+height="600" frameborder="0"></iframe>
