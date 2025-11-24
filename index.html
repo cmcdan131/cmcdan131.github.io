@@ -73,25 +73,22 @@
       }
 
 map.on("load", () => {
-  // Debug: list all layers
-  console.log("Layers:", map.getStyle().layers.map(l => ({ id: l.id, type: l.type })));
 
-  // Debug: check the specific layer
-  console.log("Target layer:", map.getLayer(layerId));
-
-  // Quantile-based color styling
+  // Color styling based on cases_per_100k using interpolate
   map.setPaintProperty(layerId, "fill-color", [
-    "step",
-    ["get", "cases_per_100k"],
+    "interpolate",
+    ["linear"],
+    ["to-number", ["get", "cases_per_100k"]],
 
-    "#f2f0f7", 0.010765,
-    "#dadaeb", 0.019973,
-    "#bcbddc", 0.033101,
-    "#9e9ac8", 0.069443,
-    "#6a51a3", 1.488297
+    0.002529, "#f2f0f7",  // min
+    0.010765, "#dadaeb",  // 20th percentile
+    0.019973, "#bcbddc",  // 40th
+    0.033101, "#9e9ac8",  // 60th
+    0.069443, "#6a51a3",  // 80th
+    1.488297, "#3f007d"   // max
   ]);
 
-  // Optional outline
+  // Optional outline so low values are visible
   map.setPaintProperty(layerId, "fill-outline-color", "#222");
 
   const initialYear = parseInt(slider.value);
@@ -104,6 +101,7 @@ map.on("load", () => {
     updateFilter(year);
   });
 });
+
 
 
     </script>
