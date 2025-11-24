@@ -72,17 +72,34 @@
         map.setFilter(layerId, ["==", ["get", "year"], year]);
       }
 
-      map.on("load", () => {
-        const initialYear = parseInt(slider.value);
-        label.textContent = initialYear;
-        updateFilter(initialYear);
+map.on("load", () => {
 
-        slider.addEventListener("input", (e) => {
-          const year = parseInt(e.target.value);
-          label.textContent = year;
-          updateFilter(year);
-        });
-      });
+  // Quantile-based color styling
+  map.setPaintProperty(layerId, "fill-color", [
+    "step",
+    ["get", "cases_per_100k"],
+
+    "#f2f0f7", 0.010765,
+    "#dadaeb", 0.019973,
+    "#bcbddc", 0.033101,
+    "#9e9ac8", 0.069443,
+    "#6a51a3", 1.488297
+  ]);
+
+  // Optional outline
+  map.setPaintProperty(layerId, "fill-outline-color", "#222");
+
+  const initialYear = parseInt(slider.value);
+  label.textContent = initialYear;
+  updateFilter(initialYear);
+
+  slider.addEventListener("input", (e) => {
+    const year = parseInt(e.target.value);
+    label.textContent = year;
+    updateFilter(year);
+  });
+});
+
     </script>
 
   </body>
