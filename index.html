@@ -4,8 +4,15 @@
     <meta charset="utf-8">
     <title>Sovereign Filings Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Mapbox GL JS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
+
+    <!-- ArcGIS Maps SDK for JavaScript -->
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.34/esri/themes/light/main.css"
+    >
     <script src="https://js.arcgis.com/4.34/"></script>
 
     <style>
@@ -64,7 +71,7 @@
         overflow: hidden;
       }
 
-      /* Mapbox year slider*/
+      /* Mapbox year slider panel, bottom center */
       #panel {
         position: absolute;
         bottom: 20px;
@@ -82,7 +89,7 @@
         width: 220px;
       }
 
-      /* ArcGIS TimeSlider overlay */
+      /* ArcGIS TimeSlider overlay, bottom center */
       #arcgisTimeSliderOverlay {
         position: absolute;
         bottom: 20px;
@@ -94,16 +101,19 @@
         border-radius: 8px;
       }
 
+      /* ArcGIS slider width control */
       #arcgisTimeSlider {
-        width: 360px;
+        width: 320px;
         max-width: 70vw;
       }
 
+      /* Make the ArcGIS time slider compact */
       #arcgisTimeSlider .esri-time-slider {
         height: 40px;
         font-size: 12px;
       }
 
+      /* Thinner track for the ArcGIS slider */
       #arcgisTimeSlider .esri-slider {
         height: 4px;
       }
@@ -131,7 +141,14 @@
                 <span id="yearLabel">2008</span>
               </label>
             </div>
-            <input id="yearSlider" type="range" min="2008" max="2024" step="1" value="2008">
+            <input
+              id="yearSlider"
+              type="range"
+              min="2008"
+              max="2024"
+              step="1"
+              value="2008"
+            >
           </div>
           <div id="map" class="map"></div>
         </div>
@@ -199,6 +216,14 @@
           label.textContent = year;
           updateFilter(year);
         });
+
+        // Make sure the map redraws correctly if layout timing is weird
+        map.resize();
+      });
+
+      // Extra safety: resize on full window load too
+      window.addEventListener("load", () => {
+        map.resize();
       });
     </script>
 
