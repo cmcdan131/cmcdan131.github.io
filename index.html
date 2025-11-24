@@ -5,16 +5,7 @@
     <title>Sovereign Filings Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Mapbox GL JS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-
-    <!-- ArcGIS Maps SDK for JavaScript -->
-    <link
-      rel="stylesheet"
-      href="https://js.arcgis.com/4.34/esri/themes/light/main.css"
-    >
-    <script src="https://js.arcgis.com/4.34/"></script>
 
     <style>
       body {
@@ -72,51 +63,26 @@
         overflow: hidden;
       }
 
-      /* Mapbox year slider panel, bottom center */
       #panel {
         position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
+        top: 20px;
+        left: 20px;
         z-index: 1;
         background: rgba(0, 0, 0, 0.7);
         padding: 8px 10px;
         border-radius: 6px;
         font-size: 13px;
-        text-align: center;
       }
 
       #yearSlider {
         width: 220px;
       }
 
-      /* ArcGIS TimeSlider overlay, bottom center */
-      #arcgisTimeSliderOverlay {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 5;
-        background: rgba(0, 0, 0, 0.6);
-        padding: 6px 8px;
-        border-radius: 8px;
-      }
-
-      /* ArcGIS slider width control */
-      #arcgisTimeSlider {
-        width: 320px;
-        max-width: 70vw;
-      }
-
-      /* Make the ArcGIS time slider compact */
-      #arcgisTimeSlider .esri-time-slider {
-        height: 40px;
-        font-size: 12px;
-      }
-
-      /* Thinner track for the ArcGIS slider */
-      #arcgisTimeSlider .esri-slider {
-        height: 4px;
+      iframe {
+        border: 0;
+        width: 100%;
+        height: 480px;
+        border-radius: 4px;
       }
     </style>
   </head>
@@ -127,7 +93,8 @@
 
       <div class="intro">
         <p>
-          Write-up here later.
+          This page shows a time enabled map of sovereign citizen related court filings,
+          normalized by population, alongside an ArcGIS Online map for comparison and additional context.
         </p>
       </div>
 
@@ -142,168 +109,76 @@
                 <span id="yearLabel">2008</span>
               </label>
             </div>
-            <input
-              id="yearSlider"
-              type="range"
-              min="2008"
-              max="2024"
-              step="1"
-              value="2008"
-            >
+            <input id="yearSlider" type="range" min="2008" max="2024" step="1" value="2008">
           </div>
           <div id="map" class="map"></div>
         </div>
 
-        <!-- ArcGIS Maps SDK map card -->
-        <div class="map-card">
-          <h2 class="map-title">ArcGIS Time Slider Map</h2>
+        <!-- ArcGIS Online or second map card -->
+		<div class="map-card">
+			<h2 class="map-title">ArcGIS Online Time Slider Map</h2>
 
-          <div id="arcgisMap" class="map"></div>
+			<iframe
+				src="https://univredlands.maps.arcgis.com/apps/instant/slider/index.html?appid=9ace388322f043f885134d114ec1e6c4"
+				width="100%"
+				height="600"
+				frameborder="0"
+				style="border:0; border-radius:10px;"
+				allowfullscreen>
+			</iframe>
+</div>
 
-          <div id="arcgisTimeSliderOverlay">
-            <div id="arcgisTimeSlider"></div>
-          </div>
-        </div>
 
       </div>
     </div>
 
-    <!-- Mapbox script - now waits for mapboxgl to be defined -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
     <script>
-      // Wait for Mapbox to be fully loaded
-      if (typeof mapboxgl !== 'undefined') {
-        initMapbox();
-      } else {
-        window.addEventListener('load', initMapbox);
+      mapboxgl.accessToken = "pk.eyJ1IjoiY29sZW1tIiwiYSI6ImNtZzYxMmN4aDBhcGsycHB0c2wwNWQ2cGIifQ.qJpSXq0PFPtQLzM50SIweg";
+
+      const map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/colemm/cmiclmyma004s01sib8rj8ufg",
+        center: [-98, 38],
+        zoom: 3
+      });
+
+      map.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+      const layerId = "states-sovfilings-joined-bu1d92";
+
+      const slider = document.getElementById("yearSlider");
+      const label = document.getElementById("yearLabel");
+
+      function updateFilter(year) {
+        map.setFilter(layerId, ["==", ["get", "year"], year]);
       }
 
-      function initMapbox() {
-        mapboxgl.accessToken = "pk.eyJ1IjoiY29sZW1tIiwiYSI6ImNtZzYxMmN4aDBhcGsycHB0c2wwNWQ2cGIifQ.qJpSXq0PFPtQLzM50SIweg";
+      map.on("load", () => {
+        // color by cases_per_100k
+        map.setPaintProperty(layerId, "fill-color", [
+          "interpolate",
+          ["linear"],
+          ["to-number", ["get", "cases_per_100k"]],
 
-        const map = new mapboxgl.Map({
-          container: "map",
-          style: "mapbox://styles/colemm/cmiclmyga004s01sib8rj8ufg",
-          center: [-98, 38],
-          zoom: 3
-        });
+          0.002529, "#f2f0f7",
+          0.010765, "#dadaeb",
+          0.019973, "#bcbddc",
+          0.033101, "#9e9ac8",
+          0.069443, "#6a51a3",
+          1.488297, "#3f007d"
+        ]);
 
-        map.addControl(new mapboxgl.NavigationControl(), "top-right");
+        map.setPaintProperty(layerId, "fill-outline-color", "#222");
 
-        const layerId = "states-sovfilings-joined-bu1d92";
+        const initialYear = parseInt(slider.value);
+        label.textContent = initialYear;
+        updateFilter(initialYear);
 
-        const slider = document.getElementById("yearSlider");
-        const label = document.getElementById("yearLabel");
-
-        function updateFilter(year) {
-          map.setFilter(layerId, ["==", ["get", "year"], year]);
-        }
-
-        map.on("load", () => {
-          // Check if the layer exists
-          const layer = map.getLayer(layerId);
-          if (!layer) {
-            console.error(`Layer "${layerId}" not found in the style`);
-            return;
-          }
-
-          // color by cases_per_100k
-          map.setPaintProperty(layerId, "fill-color", [
-            "interpolate",
-            ["linear"],
-            ["to-number", ["get", "cases_per_100k"]],
-
-            0.002529, "#f2f0f7",
-            0.010765, "#dadaeb",
-            0.019973, "#bcbddc",
-            0.033101, "#9e9ac8",
-            0.069443, "#6a51a3",
-            1.488297, "#3f007d"
-          ]);
-
-          map.setPaintProperty(layerId, "fill-outline-color", "#222");
-
-          const initialYear = parseInt(slider.value);
-          label.textContent = initialYear;
-          updateFilter(initialYear);
-
-          slider.addEventListener("input", (e) => {
-            const year = parseInt(e.target.value);
-            label.textContent = year;
-            updateFilter(year);
-          });
-
-          // Make sure the map redraws correctly if layout timing is weird
-          map.resize();
-        });
-      }
-    </script>
-
-    <!-- ArcGIS Maps SDK script -->
-    <script>
-      require([
-        "esri/WebMap",
-        "esri/views/MapView",
-        "esri/widgets/TimeSlider",
-        "esri/core/reactiveUtils"
-      ], function (WebMap, MapView, TimeSlider, reactiveUtils) {
-
-        const webmap = new WebMap({
-          portalItem: {
-            id: "8bd3baafc4a841e2a68923af3f556a25"
-          }
-        });
-
-        const view = new MapView({
-          container: "arcgisMap",
-          map: webmap,
-          center: [-95.03588283919804, 37.644177793871904],
-          scale: 18489297.737236
-        });
-
-        view.when(function () {
-          // Wait for layers to load
-          reactiveUtils.whenOnce(() => !view.updating).then(() => {
-            // Check for time-enabled layers
-            const timeEnabledLayers = view.map.allLayers.filter(layer => {
-              return layer.timeInfo || layer.timeExtent;
-            });
-
-            console.log("Time-enabled layers:", timeEnabledLayers.toArray());
-
-            // Set up time extent - either from map or create manually
-            let fullTimeExtent = view.map.timeExtent;
-            
-            if (!fullTimeExtent && timeEnabledLayers.length > 0) {
-              // If no map time extent but we have time-enabled layers,
-              // use the first layer's time extent
-              fullTimeExtent = timeEnabledLayers.getItemAt(0).timeExtent;
-            }
-
-            if (!fullTimeExtent) {
-              // Manual fallback: create time extent for 2008-2024
-              fullTimeExtent = {
-                start: new Date(2008, 0, 1),
-                end: new Date(2024, 11, 31)
-              };
-              console.log("Using manual time extent:", fullTimeExtent);
-            }
-
-            const timeSlider = new TimeSlider({
-              container: "arcgisTimeSlider",
-              view: view,
-              mode: "instant",
-              fullTimeExtent: fullTimeExtent,
-              stops: {
-                interval: {
-                  value: 1,
-                  unit: "years"
-                }
-              }
-            });
-
-            // Set initial time extent
-            timeSlider.timeExtent = fullTimeExtent;
-          });
+        slider.addEventListener("input", (e) => {
+          const year = parseInt(e.target.value);
+          label.textContent = year;
+          updateFilter(year);
         });
       });
     </script>
