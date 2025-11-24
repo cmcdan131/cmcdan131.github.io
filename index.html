@@ -3,9 +3,87 @@
   <head>
     <meta charset="utf-8">
     <title>Sovereign Filings Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #111;
+        color: #eee;
+        font-family: system-ui, sans-serif;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      #panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+      #yearSlider {
+        width: 220px;
+      }
+    </style>
   </head>
   <body>
-    <h1>Sovereign Filings Web Map</h1>
-    <p>This site will host my Web GIS project, including ArcGIS Online and Mapbox maps.</p>
+
+    <div id="map"></div>
+
+    <div id="panel">
+      <div>
+        <label for="yearSlider">
+          Year:
+          <span id="yearLabel">2008</span>
+        </label>
+      </div>
+      <input id="yearSlider" type="range" min="2008" max="2024" step="1" value="2008">
+    </div>
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <script>
+      mapboxgl.accessToken = "pk.eyJ1IjoiY29sZW1tIiwiYSI6ImNtZzYxMmN4aDBhcGsycHB0c2wwNWQ2cGIifQ.qJpSXq0PFPtQLzM50SIweg";
+
+      const map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/colemm/cmiclmyma004s01sib8rj8ufg",
+        center: [-98, 38],
+        zoom: 3
+      });
+
+      map.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+      const layerId = "states-sovfilings-joined-bu1d92";
+
+      const slider = document.getElementById("yearSlider");
+      const label = document.getElementById("yearLabel");
+
+      function updateFilter(year) {
+        map.setFilter(layerId, ["==", ["get", "year"], year]);
+      }
+
+      map.on("load", () => {
+        const initialYear = parseInt(slider.value);
+        label.textContent = initialYear;
+        updateFilter(initialYear);
+
+        slider.addEventListener("input", (e) => {
+          const year = parseInt(e.target.value);
+          label.textContent = year;
+          updateFilter(year);
+        });
+      });
+    </script>
+
   </body>
 </html>
