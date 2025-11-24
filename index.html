@@ -73,6 +73,11 @@
       }
 
 map.on("load", () => {
+  // Debug: list all layers
+  console.log("Layers:", map.getStyle().layers.map(l => ({ id: l.id, type: l.type })));
+
+  // Debug: check the specific layer
+  console.log("Target layer:", map.getLayer(layerId));
 
   // Quantile-based color styling
   map.setPaintProperty(layerId, "fill-color", [
@@ -99,6 +104,7 @@ map.on("load", () => {
     updateFilter(year);
   });
 });
+
 
     </script>
 
