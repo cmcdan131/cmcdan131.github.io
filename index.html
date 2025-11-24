@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css"/>
+    <script src="https://js.arcgis.com/4.34/"></script>
 
     <style>
       body {
@@ -86,6 +88,41 @@
         height: 480px;
         border-radius: 4px;
       }
+            #arcgisMap {
+        width: 100%;
+        height: 480px;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .map-card {
+        position: relative;
+      }
+
+      /* bottom centered time slider overlay */
+      #arcgisTimeSliderOverlay {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 8px 12px;
+        border-radius: 8px;
+      }
+
+      /* slider width control */
+      #arcgisTimeSlider {
+        width: 400px;
+        max-width: 70vw;
+      }
+
+      /* compact time slider widget */
+      #arcgisTimeSlider .esri-time-slider {
+        height: 50px;
+        font-size: 12px;
+      }
+
     </style>
   </head>
   <body>
@@ -117,21 +154,15 @@
 
         <!-- ArcGIS Online or second map card -->
         <div class="map-card">
-          <h2 class="map-title">ArcGIS Online Time Slider Map</h2>
+          <h2 class="map-title">ArcGIS Time Slider Map</h2>
 
-            <iframe
-              src="https://univredlands.maps.arcgis.com/apps/instant/slider/index.html?appid=9ace388322f043f885134d114ec1e6c4"
-              width="100%"
-              height="600"
-              frameborder="0"
-              style="border:0; border-radius:10px;"
-              allowfullscreen>
-			</iframe>
-</div>
+          <div id="arcgisMap" class="map"></div>
 
+          <div id="arcgisTimeSliderOverlay">
+            <div id="arcgisTimeSlider"></div>
+          </div>
+        </div>
 
-      </div>
-    </div>
 
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
     <script>
@@ -183,6 +214,47 @@
         });
       });
     </script>
+    <script>
+  require([
+    "esri/WebMap",
+    "esri/views/MapView",
+    "esri/widgets/TimeSlider"
+  ], function (WebMap, MapView, TimeSlider) {
+
+    const webmap = new WebMap({
+      portalItem: {
+        id: "8bd3baafc4a841e2a68923af3f556a25"
+      }
+    });
+
+    const view = new MapView({
+      container: "arcgisMap",
+      map: webmap,
+      center: [-95.03588283919804, 37.644177793871904],
+      scale: 18489297.737236
+    });
+
+    view.when(function () {
+      const timeSlider = new TimeSlider({
+        container: "arcgisTimeSlider",
+        view: view,
+        mode: "time-window",
+        stops: {
+          interval: {
+            value: 1,
+            unit: "years"
+          }
+        }
+      });
+
+      if (view.map.timeExtent) {
+        timeSlider.fullTimeExtent = view.map.timeExtent;
+        timeSlider.timeExtent = view.map.timeExtent;
+      }
+    });
+  });
+</script>
+
 
   </body>
 </html>
