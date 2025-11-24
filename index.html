@@ -7,6 +7,7 @@
 
     <!-- Mapbox GL JS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 
     <!-- ArcGIS Maps SDK for JavaScript -->
     <link
@@ -167,75 +168,74 @@
       </div>
     </div>
 
-    <!-- Mapbox script -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <!-- Mapbox script - now waits for mapboxgl to be defined -->
     <script>
-      mapboxgl.accessToken = "pk.eyJ1IjoiY29sZW1tIiwiYSI6ImNtZzYxMmN4aDBhcGsycHB0c2wwNWQ2cGIifQ.qJpSXq0PFPtQLzM50SIweg";
-
-      const map = new mapboxgl.Map({
-        container: "map",
-        style: "mapbox://styles/colemm/cmiclmyma004s01sib8rj8ufg",
-        center: [-98, 38],
-        zoom: 3
-      });
-
-      map.addControl(new mapboxgl.NavigationControl(), "top-right");
-
-      const layerId = "states-sovfilings-joined-bu1d92";
-
-      const slider = document.getElementById("yearSlider");
-      const label = document.getElementById("yearLabel");
-
-      function updateFilter(year) {
-        map.setFilter(layerId, ["==", ["get", "year"], year]);
+      // Wait for Mapbox to be fully loaded
+      if (typeof mapboxgl !== 'undefined') {
+        initMapbox();
+      } else {
+        window.addEventListener('load', initMapbox);
       }
 
-map.on("load", () => {
-  // Check if the layer exists
-  const layer = map.getLayer(layerId);
-  if (!layer) {
-    console.error(`Layer "${layerId}" not found in the style`);
-    return;
-  }
+      function initMapbox() {
+        mapboxgl.accessToken = "pk.eyJ1IjoiY29sZW1tIiwiYSI6ImNtZzYxMmN4aDBhcGsycHB0c2wwNWQ2cGIifQ.qJpSXq0PFPtQLzM50SIweg";
 
-  // Check if layer is visible
-  const visibility = map.getLayoutProperty(layerId, 'visibility');
-  if (visibility === 'none') {
-    map.setLayoutProperty(layerId, 'visibility', 'visible');
-  }
+        const map = new mapboxgl.Map({
+          container: "map",
+          style: "mapbox://styles/colemm/cmiclmyga004s01sib8rj8ufg",
+          center: [-98, 38],
+          zoom: 3
+        });
 
-  // Set paint properties
-  map.setPaintProperty(layerId, "fill-color", [
-    "interpolate",
-    ["linear"],
-    ["to-number", ["get", "cases_per_100k"]],
-    0.002529, "#f2f0f7",
-    0.010765, "#dadaeb",
-    0.019973, "#bcbddc",
-    0.033101, "#9e9ac8",
-    0.069443, "#6a51a3",
-    1.488297, "#3f007d"
-  ]);
+        map.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-  map.setPaintProperty(layerId, "fill-outline-color", "#222");
+        const layerId = "states-sovfilings-joined-bu1d92";
 
-  const initialYear = parseInt(slider.value);
-  label.textContent = initialYear;
-  updateFilter(initialYear);
+        const slider = document.getElementById("yearSlider");
+        const label = document.getElementById("yearLabel");
 
-  slider.addEventListener("input", (e) => {
-    const year = parseInt(e.target.value);
-    label.textContent = year;
-    updateFilter(year);
-  });
+        function updateFilter(year) {
+          map.setFilter(layerId, ["==", ["get", "year"], year]);
+        }
 
-  map.resize();
-});
+        map.on("load", () => {
+          // Check if the layer exists
+          const layer = map.getLayer(layerId);
+          if (!layer) {
+            console.error(`Layer "${layerId}" not found in the style`);
+            return;
+          }
 
-      // Extra safety: resize on full window load too
-      window.addEventListener("load", () => {
-        map.resize();
-      });
+          // color by cases_per_100k
+          map.setPaintProperty(layerId, "fill-color", [
+            "interpolate",
+            ["linear"],
+            ["to-number", ["get", "cases_per_100k"]],
+
+            0.002529, "#f2f0f7",
+            0.010765, "#dadaeb",
+            0.019973, "#bcbddc",
+            0.033101, "#9e9ac8",
+            0.069443, "#6a51a3",
+            1.488297, "#3f007d"
+          ]);
+
+          map.setPaintProperty(layerId, "fill-outline-color", "#222");
+
+          const initialYear = parseInt(slider.value);
+          label.textContent = initialYear;
+          updateFilter(initialYear);
+
+          slider.addEventListener("input", (e) => {
+            const year = parseInt(e.target.value);
+            label.textContent = year;
+            updateFilter(year);
+          });
+
+          // Make sure the map redraws correctly if layout timing is weird
+          map.resize();
+        });
+      }
     </script>
 
     <!-- ArcGIS Maps SDK script -->
