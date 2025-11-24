@@ -244,8 +244,8 @@
         "esri/WebMap",
         "esri/views/MapView",
         "esri/widgets/TimeSlider",
-        "esri/TimeExtent"
-      ], function (WebMap, MapView, TimeSlider, TimeExtent) {
+        "esri/core/reactiveUtils"
+      ], function (WebMap, MapView, TimeSlider, reactiveUtils) {
 
         const webmap = new WebMap({
           portalItem: {
@@ -261,46 +261,49 @@
         });
 
         view.when(function () {
-          // Check for time-enabled layers
-          const timeEnabledLayers = view.map.allLayers.filter(layer => {
-            return layer.timeInfo || layer.timeExtent;
-          });
-
-          console.log("Time-enabled layers:", timeEnabledLayers.toArray());
-
-          // Set up time extent - either from map or create manually
-          let fullTimeExtent = view.map.timeExtent;
-          
-          if (!fullTimeExtent && timeEnabledLayers.length > 0) {
-            // If no map time extent but we have time-enabled layers,
-            // use the first layer's time extent
-            fullTimeExtent = timeEnabledLayers.getItemAt(0).timeExtent;
-          }
-
-          if (!fullTimeExtent) {
-            // Manual fallback: create time extent for 2008-2024
-            fullTimeExtent = new TimeExtent({
-              start: new Date(2008, 0, 1),
-              end: new Date(2024, 11, 31)
+          // Wait for layers to load
+          reactiveUtils.whenOnce(() => !view.updating).then(() => {
+            // Check for time-enabled layers
+            const timeEnabledLayers = view.map.allLayers.filter(layer => {
+              return layer.timeInfo || layer.timeExtent;
             });
-            console.log("Using manual time extent:", fullTimeExtent);
-          }
 
-          const timeSlider = new TimeSlider({
-            container: "arcgisTimeSlider",
-            view: view,
-            mode: "instant",
-            fullTimeExtent: fullTimeExtent,
-            stops: {
-              interval: {
-                value: 1,
-                unit: "years"
-              }
+            console.log("Time-enabled layers:", timeEnabledLayers.toArray());
+
+            // Set up time extent - either from map or create manually
+            let fullTimeExtent = view.map.timeExtent;
+            
+            if (!fullTimeExtent && timeEnabledLayers.length > 0) {
+              // If no map time extent but we have time-enabled layers,
+              // use the first layer's time extent
+              fullTimeExtent = timeEnabledLayers.getItemAt(0).timeExtent;
             }
-          });
 
-          // Set initial time extent
-          timeSlider.timeExtent = fullTimeExtent;
+            if (!fullTimeExtent) {
+              // Manual fallback: create time extent for 2008-2024
+              fullTimeExtent = {
+                start: new Date(2008, 0, 1),
+                end: new Date(2024, 11, 31)
+              };
+              console.log("Using manual time extent:", fullTimeExtent);
+            }
+
+            const timeSlider = new TimeSlider({
+              container: "arcgisTimeSlider",
+              view: view,
+              mode: "instant",
+              fullTimeExtent: fullTimeExtent,
+              stops: {
+                interval: {
+                  value: 1,
+                  unit: "years"
+                }
+              }
+            });
+
+            // Set initial time extent
+            timeSlider.timeExtent = fullTimeExtent;
+          });
         });
       });
     </script>
