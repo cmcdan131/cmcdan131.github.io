@@ -190,36 +190,47 @@
         map.setFilter(layerId, ["==", ["get", "year"], year]);
       }
 
-      map.on("load", () => {
-        // color by cases_per_100k
-        map.setPaintProperty(layerId, "fill-color", [
-          "interpolate",
-          ["linear"],
-          ["to-number", ["get", "cases_per_100k"]],
+map.on("load", () => {
+  // Check if the layer exists
+  const layer = map.getLayer(layerId);
+  if (!layer) {
+    console.error(`Layer "${layerId}" not found in the style`);
+    return;
+  }
 
-          0.002529, "#f2f0f7",
-          0.010765, "#dadaeb",
-          0.019973, "#bcbddc",
-          0.033101, "#9e9ac8",
-          0.069443, "#6a51a3",
-          1.488297, "#3f007d"
-        ]);
+  // Check if layer is visible
+  const visibility = map.getLayoutProperty(layerId, 'visibility');
+  if (visibility === 'none') {
+    map.setLayoutProperty(layerId, 'visibility', 'visible');
+  }
 
-        map.setPaintProperty(layerId, "fill-outline-color", "#222");
+  // Set paint properties
+  map.setPaintProperty(layerId, "fill-color", [
+    "interpolate",
+    ["linear"],
+    ["to-number", ["get", "cases_per_100k"]],
+    0.002529, "#f2f0f7",
+    0.010765, "#dadaeb",
+    0.019973, "#bcbddc",
+    0.033101, "#9e9ac8",
+    0.069443, "#6a51a3",
+    1.488297, "#3f007d"
+  ]);
 
-        const initialYear = parseInt(slider.value);
-        label.textContent = initialYear;
-        updateFilter(initialYear);
+  map.setPaintProperty(layerId, "fill-outline-color", "#222");
 
-        slider.addEventListener("input", (e) => {
-          const year = parseInt(e.target.value);
-          label.textContent = year;
-          updateFilter(year);
-        });
+  const initialYear = parseInt(slider.value);
+  label.textContent = initialYear;
+  updateFilter(initialYear);
 
-        // Make sure the map redraws correctly if layout timing is weird
-        map.resize();
-      });
+  slider.addEventListener("input", (e) => {
+    const year = parseInt(e.target.value);
+    label.textContent = year;
+    updateFilter(year);
+  });
+
+  map.resize();
+});
 
       // Extra safety: resize on full window load too
       window.addEventListener("load", () => {
