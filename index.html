@@ -15,39 +15,115 @@
         color: #eee;
         font-family: system-ui, sans-serif;
       }
-      #map {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100%;
+
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 16px;
       }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      .intro {
+        margin-bottom: 24px;
+        line-height: 1.5;
+      }
+
+      .maps-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      @media (min-width: 900px) {
+        .maps-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .map-card {
+        position: relative;
+        background: #181818;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      }
+
+      .map-title {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+      }
+
+      .map {
+        width: 100%;
+        height: 480px;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
       #panel {
         position: absolute;
-        top: 10px;
-        left: 10px;
+        top: 20px;
+        left: 20px;
         z-index: 1;
         background: rgba(0, 0, 0, 0.7);
-        padding: 10px 12px;
+        padding: 8px 10px;
         border-radius: 6px;
-        font-size: 14px;
+        font-size: 13px;
       }
+
       #yearSlider {
         width: 220px;
+      }
+
+      iframe {
+        border: 0;
+        width: 100%;
+        height: 480px;
+        border-radius: 4px;
       }
     </style>
   </head>
   <body>
 
-    <div id="map"></div>
+    <div class="page">
+      <h1>Sovereign Citizen Related Filings, United States</h1>
 
-    <div id="panel">
-      <div>
-        <label for="yearSlider">
-          Year:
-          <span id="yearLabel">2008</span>
-        </label>
+      <div class="intro">
+        <p>
+          This page shows a time enabled map of sovereign citizen related court filings,
+          normalized by population, alongside an ArcGIS Online map for comparison and additional context.
+        </p>
       </div>
-      <input id="yearSlider" type="range" min="2008" max="2024" step="1" value="2008">
+
+      <div class="maps-grid">
+        <!-- Mapbox map card -->
+        <div class="map-card">
+          <h2 class="map-title">Normalized filings per 100,000 residents (Mapbox)</h2>
+          <div id="panel">
+            <div>
+              <label for="yearSlider">
+                Year:
+                <span id="yearLabel">2008</span>
+              </label>
+            </div>
+            <input id="yearSlider" type="range" min="2008" max="2024" step="1" value="2008">
+          </div>
+          <div id="map" class="map"></div>
+        </div>
+
+        <!-- ArcGIS Online or second map card -->
+        <div class="map-card">
+          <h2 class="map-title">ArcGIS Online map</h2>
+          <!-- replace the src with your AGOL map URL or embed -->
+          <iframe
+            src="https://www.arcgis.com/apps/mapviewer/index.html"
+            title="ArcGIS Online map"
+          ></iframe>
+        </div>
+      </div>
     </div>
 
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
@@ -72,38 +148,33 @@
         map.setFilter(layerId, ["==", ["get", "year"], year]);
       }
 
-map.on("load", () => {
+      map.on("load", () => {
+        // color by cases_per_100k
+        map.setPaintProperty(layerId, "fill-color", [
+          "interpolate",
+          ["linear"],
+          ["to-number", ["get", "cases_per_100k"]],
 
-  // Color styling based on cases_per_100k using interpolate
-  map.setPaintProperty(layerId, "fill-color", [
-    "interpolate",
-    ["linear"],
-    ["to-number", ["get", "cases_per_100k"]],
+          0.002529, "#f2f0f7",
+          0.010765, "#dadaeb",
+          0.019973, "#bcbddc",
+          0.033101, "#9e9ac8",
+          0.069443, "#6a51a3",
+          1.488297, "#3f007d"
+        ]);
 
-    0.002529, "#f2f0f7",  // min
-    0.010765, "#dadaeb",  // 20th percentile
-    0.019973, "#bcbddc",  // 40th
-    0.033101, "#9e9ac8",  // 60th
-    0.069443, "#6a51a3",  // 80th
-    1.488297, "#3f007d"   // max
-  ]);
+        map.setPaintProperty(layerId, "fill-outline-color", "#222");
 
-  // Optional outline so low values are visible
-  map.setPaintProperty(layerId, "fill-outline-color", "#222");
+        const initialYear = parseInt(slider.value);
+        label.textContent = initialYear;
+        updateFilter(initialYear);
 
-  const initialYear = parseInt(slider.value);
-  label.textContent = initialYear;
-  updateFilter(initialYear);
-
-  slider.addEventListener("input", (e) => {
-    const year = parseInt(e.target.value);
-    label.textContent = year;
-    updateFilter(year);
-  });
-});
-
-
-
+        slider.addEventListener("input", (e) => {
+          const year = parseInt(e.target.value);
+          label.textContent = year;
+          updateFilter(year);
+        });
+      });
     </script>
 
   </body>
