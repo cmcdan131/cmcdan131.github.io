@@ -5,141 +5,313 @@
     <title>Sovereign Filings Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+    <!-- Mapbox GL CSS -->
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css"
+      rel="stylesheet"
+    >
+
+    <!-- ArcGIS Maps SDK CSS -->
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.34/esri/themes/dark/main.css"
+    >
 
     <style>
+      :root {
+        --clr-text: #D3DAD9;
+        --clr-header-bg: #715A5A;
+        --clr-bg-main: #37353E;
+        --clr-bg-side: #44444E;
+      }
+
       body {
         margin: 0;
         padding: 0;
-        background: #111;
-        color: #eee;
+        background: var(--clr-bg-side);
+        color: var(--clr-text);
         font-family: system-ui, sans-serif;
       }
 
-      .page {
+      /* Top banner wrapper */
+      header {
+        width: 100%;
+        padding-top: 16px;
+        padding-bottom: 0;
+        box-sizing: border-box;
+      }
+
+      /* Actual colored banner, same width as main content */
+      .header-inner {
         max-width: 1200px;
         margin: 0 auto;
         padding: 16px;
+        background: var(--clr-header-bg);
+        box-sizing: border-box;
+        border-radius: 8px 8px 0 0;
       }
 
-      h1 {
-        margin-top: 0;
+      header h1 {
+        margin: 0;
+        font-size: 28px;
+        text-align: center;
+        color: var(--clr-text);
+        font-weight: 600;
+      }
+      
+       header h2 {
+        margin: 0;
+        font-size: 16px;
+        text-align: center;
+        color: var(--clr-text);
+        font-weight: 600;
+      }
+
+      /* Main container, same width as banner */
+      .page {
+        max-width: 1200px;
+        margin: 0 auto 0 auto;
+        padding: 16px;
+        background: var(--clr-bg-main);
+        box-sizing: border-box;
+        border-radius: 0 0 8px 8px;
       }
 
       .intro {
         margin-bottom: 24px;
+        color: var(--clr-text);
         line-height: 1.5;
       }
 
-      .maps-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-
-      @media (min-width: 900px) {
-        .maps-grid {
-          grid-template-columns: 1fr 1fr;
-        }
+      .map-wrapper {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
       }
 
       .map-card {
-        position: relative;
-        background: #181818;
+        background: #32303a;
         border-radius: 8px;
         padding: 12px;
+        width: 100%;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        position: relative;
+      }
+
+      .map {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+
+      .maps-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
       }
 
       .map-title {
         margin: 0 0 8px 0;
         font-size: 16px;
+        text-align: center;
+        color: var(--clr-text);
       }
 
-      .map {
-        width: 100%;
-        height: 480px;
-        border-radius: 4px;
-        overflow: hidden;
-      }
-
+      /* Mapbox slider */
       #panel {
         position: absolute;
         bottom: 20px;
         left: 50%;
-        z-index: 1;
+        z-index: 5;
         background: rgba(0, 0, 0, 0.7);
         padding: 8px 10px;
         border-radius: 6px;
         font-size: 13px;
         transform: translateX(-50%);
         text-align: center;
+        color: var(--clr-text);
       }
 
       #yearSlider {
         width: 220px;
       }
 
-      iframe {
-        border: 0;
+      /* ArcGIS TimeSlider overlay */
+      #timeSliderOverlay {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 29px;
         width: 100%;
-        height: 480px;
-        border-radius: 4px;
+        z-index: 5;
+        display: flex;
+        justify-content: center;
       }
+
+      #timeSliderDiv {
+        width: 320px;
+        max-width: 100%;
+      }
+
+      /* Mapbox zoom control theming */
+      .mapboxgl-ctrl-group {
+        background: #242424;
+        border-radius: 6px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+        border: 1px solid #3a3a3a;
+      }
+
+      .mapboxgl-ctrl-group button {
+        background: #242424;
+        color: #9E9E9E;
+      }
+
+      .mapboxgl-ctrl-group button:hover {
+        background: #2f2f2f;
+      }
+
+      .mapboxgl-ctrl-group button:active {
+        background: #3a3a3a;
+      }
+
+      .mapboxgl-ctrl-group button + button {
+        border-top: 1px solid #3a3a3a;
+      }
+
+      .mapboxgl-ctrl-icon {
+        filter: brightness(0) saturate(0) invert(62%) sepia(0) saturate(0)
+          hue-rotate(0deg) brightness(89%) contrast(88%);
+      }
+      
+      .content-narrow {
+        max-width: 700px; /* adjust to taste */
+        margin: 0 auto 24px auto;
+      }
+      
+      p {
+        text-indent: 2em;
+      }
+      
+      .content-image {
+        margin: 20px auto;
+        text-align: center;
+      }
+
+      .content-image img {
+        max-width: 100%;
+        border-radius: 6px;
+      }
+
+      .content-image figcaption {
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--clr-text);
+}
+
+
     </style>
   </head>
+
   <body>
 
+    <!-- Top banner, same width as main content -->
+    <header>
+      <div class="header-inner">
+        <h1>Sovereign Citizens in the U.S.</h1>
+          <h2>Examining the relationship between Sovereign Citizens and financial hardship</h2>
+      </div>
+    </header>
+
     <div class="page">
-      <h1>Sovereign Citizen Related Filings, United States</h1>
 
       <div class="intro">
-        <p>
-          Write-up here later.
-        </p>
+		  <div class="content-narrow">
+            <p>
+              If you've spent any time on the internet, you may have come across videos of people arguing with police claiming that they are not citizens of the United States, therefore U.S. law does not apply to them. These individuals are known as Sovereign Citizens, which is an extremist movement in the United States whose roots go all the way back to the early 20th century. Sovereign Citizens believe that they cannot be subject to any government statutes unless they consent to them. Essentially allowing them (or so they believe) to pick and choose which laws to abide to. The result of this is that those who hold this belief are often found guilty of crimes such as check fraud, tax evasion, threatening public officials, and traffic violations, just to name a few.
+            </p>
+          <figure class="content-image">
+            <img src="images/ss1.png">
+            <figcaption>
+              Traffic stop involving refusal to identify<br>
+              Source: Public domain video under California Public Records Act via Wikimedia Commons.
+
+            </figcaption>
+         </figure>
+            <p>
+			  Individuals in this movement will often engage in a practice known as paper terrorism. Paper terrorism is a practice in which an individual will attempt to contest a legal matter, such as foreclosures or legal sentences, by filing frivolous documents with courts and county recorders. These documents are often dense, incomprehensible, and sent in heavy volumes. These methods are usually unsuccessful in achieving their original goals, but what they do accomplish is straining the resources of these government officials due to their legal obligation to review the submitted documents.
+            </p>
+            <p>
+			Due to the nature of these beliefs, those who find themselves in some kind of financial or legal predicament may find the Sovereign Citizen movement particularly appealing. They may learn about this movement and see it as a potential avenue for getting out of legal trouble, preventing their home from being foreclosed, or getting out of debt. Because of this, I wanted to analyze the relationship between financial hardship and the frequency of Sovereign Citizen activity in our legal system.	
+            </p>
+            <p>
+            To do this, I collected data from Courtlistener.com, searching for cases that contain common SovCit pseudo-legal jargon. This was fairly easy to do, because Sovereign Citizens have plenty of pseudo-legal terms that they'll often use, which would never have any legitimate use in cases not involving Sovereign Citizens.
+            </p>
+            <p>
+            Below you'll find two maps; the first showing, by year and state, the frequency of Sovereign Citizen related court filings. The second map shows mortgage delinquency rates provided by the Consumer Financial Protection Bureau, which we'll use as our financial stress indicator. You can use the sliders on the maps below to compare this data over time and see if you notice any patterns.
+            </p>
+          </div>
       </div>
 
       <div class="maps-grid">
-        <!-- Mapbox map card -->
-        <div class="map-card">
-          <h2 class="map-title">Normalized filings per 100,000 residents</h2>
-          <div id="panel">
-            <div>
+
+        <!-- Mapbox map -->
+        <div class="map-wrapper">
+          <div class="map-card">
+            <h2 class="map-title">Sov-cit related filings per 100k residents</h2>
+
+            <div id="panel">
               <label for="yearSlider">
                 Year:
                 <span id="yearLabel">2008</span>
               </label>
+              <br>
+              <input
+                id="yearSlider"
+                type="range"
+                min="2008"
+                max="2024"
+                step="1"
+                value="2008"
+              >
             </div>
-            <input id="yearSlider" type="range" min="2008" max="2024" step="1" value="2008">
+
+            <div id="map" class="map"></div>
           </div>
-          <div id="map" class="map"></div>
         </div>
 
-        <!-- ArcGIS Online or second map card -->
-		<div class="map-card">
-			<h2 class="map-title">Mortgage Delinquency Rates</h2>
+        <!-- ArcGIS map -->
+        <div class="map-wrapper">
+          <div class="map-card">
+            <h2 class="map-title">Mortgage Delinquency Rates</h2>
 
-			<iframe
-				src="https://univredlands.maps.arcgis.com/apps/instant/slider/index.html?appid=9ace388322f043f885134d114ec1e6c4"
-				width="100%"
-				height="600"
-				frameborder="0"
-				style="border:0; border-radius:10px;"
-				allowfullscreen>
-			</iframe>
-</div>
+            <div id="esriMap" class="map"></div>
 
+            <div id="timeSliderOverlay">
+              <div id="timeSliderDiv"></div>
+            </div>
+
+          </div>
+        </div>
 
       </div>
     </div>
 
+    <!-- Mapbox GL JS -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+
+    <!-- ArcGIS Maps SDK -->
+    <script src="https://js.arcgis.com/4.34/"></script>
+
     <script>
-      mapboxgl.accessToken = "pk.eyJ1IjoiY29sZW1tIiwiYSI6ImNtZzYxMmN4aDBhcGsycHB0c2wwNWQ2cGIifQ.qJpSXq0PFPtQLzM50SIweg";
+      /* Mapbox */
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoiY29sZW1tIiwiYSI6ImNtZzYxMmN4aDBhcGsycHB0c2wwNWQ2cGIifQ.qJpSXq0PFPtQLzM50SIweg";
 
       const map = new mapboxgl.Map({
         container: "map",
-        style: "mapbox://styles/colemm/cmiclmyma004s01sib8rj8ufg",
+        style: "mapbox://styles/colemm/cmilbzyru004q01sq3dh2b00e",
         center: [-98, 38],
         zoom: 3
       });
@@ -147,7 +319,6 @@
       map.addControl(new mapboxgl.NavigationControl(), "top-right");
 
       const layerId = "states-sovfilings-joined-bu1d92";
-
       const slider = document.getElementById("yearSlider");
       const label = document.getElementById("yearLabel");
 
@@ -156,33 +327,92 @@
       }
 
       map.on("load", () => {
-        // color by cases_per_100k
         map.setPaintProperty(layerId, "fill-color", [
           "interpolate",
           ["linear"],
           ["to-number", ["get", "cases_per_100k"]],
 
-          0.002529, "#f2f0f7",
-          0.010765, "#dadaeb",
-          0.019973, "#bcbddc",
-          0.033101, "#9e9ac8",
-          0.069443, "#6a51a3",
-          1.488297, "#3f007d"
-        ]);
+
+            0.002529, "rgba(229, 213, 206, 0.8)",
+            0.010765, "rgba(209, 178, 168, 0.8)",
+            0.019973, "rgba(186, 144, 134, 0.8)",
+            0.033101, "rgba(163, 116, 103, 0.8)",
+            0.069443, "rgba(140, 90, 73, 0.8)",
+            1.488297, "rgba(115, 63, 46, 0.8)"  // most intense
+           ]);
 
         map.setPaintProperty(layerId, "fill-outline-color", "#222");
 
-        const initialYear = parseInt(slider.value);
+        const initialYear = parseInt(slider.value, 10);
         label.textContent = initialYear;
         updateFilter(initialYear);
 
         slider.addEventListener("input", (e) => {
-          const year = parseInt(e.target.value);
+          const year = parseInt(e.target.value, 10);
           label.textContent = year;
           updateFilter(year);
         });
       });
-    </script>
 
+      /* ArcGIS map and TimeSlider */
+      require(
+        ["esri/WebMap", "esri/views/MapView", "esri/widgets/TimeSlider"],
+        function (WebMap, MapView, TimeSlider) {
+
+          const webmap = new WebMap({
+            portalItem: { id: "8bd3baafc4a841e2a68923af3f556a25" }
+          });
+
+          const view = new MapView({
+            container: "esriMap",
+            map: webmap,
+            center: [-98, 33],
+            zoom: 3
+          });
+
+          view.ui.move("zoom", "top-right");
+
+          view.when(() => {
+            const minYear = 2008;
+            const maxYear = 2023;
+
+            const yearDates = Array.from(
+              { length: maxYear - minYear + 1 },
+              (_, i) => new Date(minYear + i, 0, 1)
+            );
+
+            function setYearExtent(date) {
+              if (!date) return;
+              const year = date.getFullYear();
+              view.timeExtent = {
+                start: new Date(year, 0, 1),
+                end: new Date(year + 1, 0, 1)
+              };
+            }
+
+            const timeSlider = new TimeSlider({
+              container: "timeSliderDiv",
+              mode: "instant",
+              fullTimeExtent: {
+                start: new Date(minYear, 0, 1),
+                end: new Date(maxYear, 0, 1)
+              },
+              stops: { dates: yearDates }
+            });
+
+            timeSlider.timeExtent = {
+              start: yearDates[0],
+              end: yearDates[0]
+            };
+
+            setYearExtent(yearDates[0]);
+
+            timeSlider.watch("timeExtent", (value) => {
+              if (value && value.start) setYearExtent(value.start);
+            });
+          });
+        }
+      );
+    </script>
   </body>
 </html>
