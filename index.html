@@ -152,35 +152,71 @@
         max-width: 100%;
       }
 
-      /* Mapbox zoom control theming */
-      .mapboxgl-ctrl-group {
+      /* Mapbox zoom control dark theme */
+      .mapboxgl-ctrl.mapboxgl-ctrl-group {
         background: #242424;
         border-radius: 6px;
-        box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
         border: 1px solid #3a3a3a;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
       }
 
-      .mapboxgl-ctrl-group button {
-        background: #242424;
+      .mapboxgl-ctrl.mapboxgl-ctrl-group > button {
+        background-color: #242424;
         color: #9E9E9E;
+        width: 32px;
+        height: 32px;
+        padding: 0;
       }
 
-      .mapboxgl-ctrl-group button:hover {
-        background: #2f2f2f;
+      .mapboxgl-ctrl.mapboxgl-ctrl-group > button:hover {
+        background-color: #2f2f2f;
       }
 
-      .mapboxgl-ctrl-group button:active {
-        background: #3a3a3a;
+      .mapboxgl-ctrl.mapboxgl-ctrl-group > button:active {
+        background-color: #3a3a3a;
       }
 
-      .mapboxgl-ctrl-group button + button {
+      .mapboxgl-ctrl.mapboxgl-ctrl-group > button + button {
         border-top: 1px solid #3a3a3a;
       }
 
-      .mapboxgl-ctrl-icon {
+      .mapboxgl-ctrl.mapboxgl-ctrl-group .mapboxgl-ctrl-icon {
         filter: brightness(0) saturate(0) invert(62%) sepia(0) saturate(0)
           hue-rotate(0deg) brightness(89%) contrast(88%);
       }
+      /* Mapbox zoom control dark theme */
+      .mapboxgl-ctrl.mapboxgl-ctrl-group {
+        background: #242424;
+        border-radius: 6px;
+        border: 1px solid #3a3a3a;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+      }
+
+      .mapboxgl-ctrl.mapboxgl-ctrl-group > button {
+        background-color: #242424;
+        color: #9E9E9E;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+      }
+
+      .mapboxgl-ctrl.mapboxgl-ctrl-group > button:hover {
+        background-color: #2f2f2f;
+      }
+
+      .mapboxgl-ctrl.mapboxgl-ctrl-group > button:active {
+        background-color: #3a3a3a;
+      }
+
+      .mapboxgl-ctrl.mapboxgl-ctrl-group > button + button {
+        border-top: 1px solid #3a3a3a;
+      }
+
+      .mapboxgl-ctrl.mapboxgl-ctrl-group .mapboxgl-ctrl-icon {
+        filter: brightness(0) saturate(0) invert(62%) sepia(0) saturate(0)
+          hue-rotate(0deg) brightness(89%) contrast(88%);
+      }
+
       
       .content-narrow {
         max-width: 700px; /* adjust to taste */
