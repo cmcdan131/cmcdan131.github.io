@@ -5,13 +5,11 @@
     <title>Sovereign Filings Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Mapbox GL CSS -->
     <link
       href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css"
       rel="stylesheet"
     >
 
-    <!-- ArcGIS Maps SDK CSS -->
     <link
       rel="stylesheet"
       href="https://js.arcgis.com/4.34/esri/themes/dark/main.css"
@@ -97,7 +95,7 @@
 
       .map {
         width: 100%;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 8 / 7;
         border-radius: 4px;
         overflow: hidden;
       }
@@ -135,7 +133,7 @@
         width: 220px;
       }
 
-      /* ArcGIS TimeSlider overlay */
+      /* ArcGIS timeslder tweaks */
       #timeSliderOverlay {
         position: absolute;
         left: 0;
@@ -151,39 +149,7 @@
         width: 320px;
         max-width: 100%;
       }
-
-      /* Mapbox zoom control dark theme */
-      .mapboxgl-ctrl.mapboxgl-ctrl-group {
-        background: #242424;
-        border-radius: 6px;
-        border: 1px solid #3a3a3a;
-        box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
-      }
-
-      .mapboxgl-ctrl.mapboxgl-ctrl-group > button {
-        background-color: #242424;
-        color: #9E9E9E;
-        width: 32px;
-        height: 32px;
-        padding: 0;
-      }
-
-      .mapboxgl-ctrl.mapboxgl-ctrl-group > button:hover {
-        background-color: #2f2f2f;
-      }
-
-      .mapboxgl-ctrl.mapboxgl-ctrl-group > button:active {
-        background-color: #3a3a3a;
-      }
-
-      .mapboxgl-ctrl.mapboxgl-ctrl-group > button + button {
-        border-top: 1px solid #3a3a3a;
-      }
-
-      .mapboxgl-ctrl.mapboxgl-ctrl-group .mapboxgl-ctrl-icon {
-        filter: brightness(0) saturate(0) invert(62%) sepia(0) saturate(0)
-          hue-rotate(0deg) brightness(89%) contrast(88%);
-      }
+      
       /* Mapbox zoom control dark theme */
       .mapboxgl-ctrl.mapboxgl-ctrl-group {
         background: #242424;
@@ -219,7 +185,7 @@
 
       
       .content-narrow {
-        max-width: 700px; /* adjust to taste */
+        max-width: 700px;
         margin: 0 auto 24px auto;
       }
       
@@ -256,7 +222,96 @@
         text-decoration: underline;
       }
 
+      .map-legend {
+        position: absolute;
+        top: 50px; 
+        left: 10px;
+        z-index: 5;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        color: var(--clr-text);
+        max-width: 200px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      }
 
+      /* ArcGIS Legend css overrides */
+      #arcgisLegendWrapper {
+        max-width: 150px;
+      }
+
+      .map-legend h3 {
+        margin: 0 0 6px 0;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+
+      .legend-color {
+        width: 20px;
+        height: 15px;
+        margin-right: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+      }
+
+      .legend-label {
+        flex: 1;
+        font-size: 11px;
+      }
+
+      #esriLegend {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100%;
+      }
+
+      .esri-legend {
+        background-color: transparent !important; 
+        color: var(--clr-text) !important;
+        padding: 0 !important; 
+        font-size: 12px !important;
+        box-shadow: none !important; 
+        border-radius: 0 !important;
+      }
+
+      .esri-legend__service-label {
+        display: none !important;
+      }
+
+      .esri-legend__layer-caption {
+        display: none !important;
+      }
+
+      .esri-legend__symbol {
+        display: none !important;
+      }
+
+      .esri-legend__layer {
+        margin-bottom: 4px;
+      }
+
+      .esri-legend__layer-row {
+        display: flex;
+        align-items: center;
+      }
+
+      .esri-legend__layer-cell--symbols,
+      .esri-legend__layer-cell--info {
+        width: 100% !important;
+      }
+
+      .esri-legend__layer-table {
+        margin: 0 !important;
+      }
 
     </style>
   </head>
@@ -286,7 +341,7 @@
             </figcaption>
          </figure>
             <p>
-			  Individuals in this movement will often engage in a practice known as paper terrorism. This involves flooding courts and county recorders with large volumes of frivolous filings, usually in an attempt to contest legal matters such as foreclosures or criminal sentences. These documents are often dense, confusing, and legally meaningless. They rarely achieve the filer’s intended goals, but they do consume significant time and resources because government staff must review every submission. 
+			  Individuals in this movement will often engage in a practice known as paper terrorism. This involves flooding courts and county recorders with large volumes of frivolous filings, usually in an attempt to contest legal matters such as foreclosures or criminal sentences. These documents are often dense, confusing, and legally meaningless. They rarely achieve the filer's intended goals, but they do consume significant time and resources because government staff must review every submission. 
             </p>
             <p>
 			Because the movement presents itself as a way to bypass the usual legal and financial systems, those who find themselves in some kind of financial or legal predicament may find the Sovereign Citizen movement particularly appealing. Someone facing foreclosure, debt, or other legal trouble may believe that these pseudo-legal tactics offer a way out. Because of this, I was interested in analyzing whether financial stress and Sovereign Citizen activity show any relationship over time and across states.	
@@ -302,10 +357,33 @@
 
       <div class="maps-grid">
 
-        <!-- Mapbox map -->
         <div class="map-wrapper">
           <div class="map-card">
             <h2 class="map-title">SovCit related filings per 100k residents</h2>
+
+            <div id="mapboxLegend" class="map-legend">
+              <h3>Filings per 100k</h3>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: rgba(229, 213, 206, 0.8);"></div>
+                <div class="legend-label">0.0025 - 0.0108</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: rgba(209, 178, 168, 0.8);"></div>
+                <div class="legend-label">0.0108 - 0.0200</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: rgba(186, 144, 134, 0.8);"></div>
+                <div class="legend-label">0.0200 - 0.0331</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: rgba(163, 116, 103, 0.8);"></div>
+                <div class="legend-label">0.0331 - 0.0694</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: rgba(140, 90, 73, 0.8);"></div>
+                <div class="legend-label">0.0694 - 1.4883</div>
+              </div>
+            </div>
 
             <div id="panel">
               <label for="yearSlider">
@@ -327,10 +405,13 @@
           </div>
         </div>
 
-        <!-- ArcGIS map -->
         <div class="map-wrapper">
           <div class="map-card">
             <h2 class="map-title">Mortgage Delinquency Rates</h2>
+
+            <div id="arcgisLegendWrapper" class="map-legend">
+              <h3>Delinquency Rate (%)</h3> <div id="esriLegend"></div>
+            </div>
 
             <div id="esriMap" class="map"></div>
 
@@ -347,7 +428,7 @@
 			  As you might notice, we do not always see a direct correlation between mortgage delinquency rates and the frequency of court filings that contain Sovereign Citizen terms. Even so, a few patterns stand out. Southern states appear to experience the highest levels of financial stress as indicated by delinquency rates, and they also show the most consistent occurrences of Sovereign Citizen filings. Texas and Florida appear frequently, which is not surprising given their large populations. Tennessee and Georgia also show up regularly, even though their populations are much smaller.
 		  </p>
 		  <p>
-			  One notable exception is Ohio. It consistently ranks among the states with the most Sovereign Citizen related filings, yet it does not show the same level of financial stress as many of its neighbors. This suggests that while financial hardship may be one factor, it is not the only driver behind the geographic distribution of Sovereign Citizen activity.
+			  One notable exception is Ohio. It consistently ranks among the states with the most Sovereign Citizen related filings, yet it does not show the same level of financial stress as many of its neighbors. This suggests that while financial hardship may be one factor, it is not only the driver behind the geographic distribution of Sovereign Citizen activity.
 		  </p>
 		  <p>
 			  The patterns in this dataset raise some interesting questions about what drives Sovereign Citizen activity in different states. Financial stress clearly plays a role in some places, but it doesn't make up the whole story. Other social and regional factors are likely contributing as well, and looking into those influences could help give a clearer picture of why this activity shows up where it does.
@@ -364,10 +445,8 @@
 		  
     </div>
 
-    <!-- Mapbox GL JS -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 
-    <!-- ArcGIS Maps SDK -->
     <script src="https://js.arcgis.com/4.34/"></script>
 
     <script>
@@ -420,10 +499,10 @@
         });
       });
 
-      /* ArcGIS map and TimeSlider */
+      /* ArcGIS map */
       require(
-        ["esri/WebMap", "esri/views/MapView", "esri/widgets/TimeSlider"],
-        function (WebMap, MapView, TimeSlider) {
+        ["esri/WebMap", "esri/views/MapView", "esri/widgets/TimeSlider", "esri/widgets/Legend"],
+        function (WebMap, MapView, TimeSlider, Legend) {
 
           const webmap = new WebMap({
             portalItem: { id: "8bd3baafc4a841e2a68923af3f556a25" }
@@ -437,6 +516,11 @@
           });
 
           view.ui.move("zoom", "top-right");
+
+          const legend = new Legend({
+            view: view,
+            container: "esriLegend"
+          });
 
           view.when(() => {
             const minYear = 2008;
